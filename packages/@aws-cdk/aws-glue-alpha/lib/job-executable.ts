@@ -15,12 +15,12 @@ export class GlueVersion {
   public static readonly V0_9 = new GlueVersion('0.9');
 
   /**
-   * Glue version using Spark 2.4.3, Python 2.7 and Python 3.6
+   * REMOVE Glue version using Spark 2.4.3, Python 2.7 and Python 3.6
    */
   public static readonly V1_0 = new GlueVersion('1.0');
 
   /**
-   * Glue version using Spark 2.4.3 and Python 3.7
+   * REMOVE Glue version using Spark 2.4.3 and Python 3.7
    */
   public static readonly V2_0 = new GlueVersion('2.0');
 
@@ -72,12 +72,12 @@ export enum JobLanguage {
  */
 export enum PythonVersion {
   /**
-   * Python 2 (the exact version depends on GlueVersion and JobCommand used)
+   * REMOVE Python 2 (the exact version depends on GlueVersion and JobCommand used)
    */
   TWO = '2',
 
   /**
-   * Python 3 (the exact version depends on GlueVersion and JobCommand used)
+   * REMOVE Python 3 (the exact version depends on GlueVersion and JobCommand used)
    */
   THREE = '3',
 
@@ -350,6 +350,7 @@ export class JobExecutable {
   private config: JobExecutableConfig;
 
   private constructor(config: JobExecutableConfig) {
+    // *** REMOVE THESE VALIDATIONS - WE WILL ENFORCE RATHER THAN VALIDATE THESE VERSION PARAMETERS **
     if (JobType.PYTHON_SHELL === config.type) {
       if (config.language !== JobLanguage.PYTHON) {
         throw new Error('Python shell requires the language to be set to Python');
