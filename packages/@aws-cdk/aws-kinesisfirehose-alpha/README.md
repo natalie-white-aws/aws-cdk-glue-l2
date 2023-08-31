@@ -401,7 +401,7 @@ configuration.
 // Provide a Lambda function that will transform records before delivery, with custom
 // buffering and retry configuration
 const lambdaFunction = new lambda.Function(this, 'Processor', {
-  runtime: lambda.Runtime.NODEJS_14_X,
+  runtime: lambda.Runtime.NODEJS_LATEST,
   handler: 'index.handler',
   code: lambda.Code.fromAsset(path.join(__dirname, 'process-records')),
 });
@@ -498,14 +498,14 @@ Conversely to the above, Kinesis Data Firehose requires permissions in order for
 streams to interact with resources that you own. For example, if an S3 bucket is specified
 as a destination of a delivery stream, the delivery stream must be granted permissions to
 put and get objects from the bucket. When using the built-in AWS service destinations
-found in the `@aws-cdk/aws-kinesisfirehose-destinations` module, the CDK grants the
+found in the `@aws-cdk/aws-kinesisfirehose-destinations-alpha` module, the CDK grants the
 permissions automatically. However, custom or third-party destinations may require custom
 permissions. In this case, use the delivery stream as an `IGrantable`, as follows:
 
 ```ts
 const fn = new lambda.Function(this, 'Function', {
   code: lambda.Code.fromInline('exports.handler = (event) => {}'),
-  runtime: lambda.Runtime.NODEJS_14_X,
+  runtime: lambda.Runtime.NODEJS_LATEST,
   handler: 'index.handler',
 });
 

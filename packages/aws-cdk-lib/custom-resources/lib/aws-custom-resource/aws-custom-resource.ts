@@ -9,20 +9,6 @@ import * as logs from '../../../aws-logs';
 import * as cdk from '../../../core';
 import { Annotations } from '../../../core';
 import * as cxapi from '../../../cx-api';
-import { FactName } from '../../../region-info';
-
-/**
- * The lambda runtime used by default for aws-cdk vended custom resources. Can change
- * based on region.
- */
-export function builtInCustomResourceNodeRuntime(scope: Construct): lambda.Runtime {
-  // Runtime regional fact should always return a known runtime string that lambda.Runtime
-  // can index off, but for type safety we also default it here.
-  const runtimeName = cdk.Stack.of(scope).regionalFact(FactName.DEFAULT_CR_NODE_VERSION, 'nodejs16.x');
-  return runtimeName
-    ? new lambda.Runtime(runtimeName, lambda.RuntimeFamily.NODEJS, { supportsInlineCode: true })
-    : lambda.Runtime.NODEJS_16_X;
-}
 
 /**
  * Reference to the physical resource id that can be passed to the AWS operation as a parameter.
@@ -74,6 +60,24 @@ export class PhysicalResourceId {
 
 /**
  * An AWS SDK call.
+ *
+ * @example
+ *
+ *    new cr.AwsCustomResource(this, 'GetParameterCustomResource', {
+ *      onUpdate: { // will also be called for a CREATE event
+ *        service: 'SSM',
+ *        action: 'getParameter',
+ *        parameters: {
+ *          Name: 'my-parameter',
+ *          WithDecryption: true,
+ *        },
+ *        physicalResourceId: cr.PhysicalResourceId.fromResponse('Parameter.ARN'),
+ *      },
+ *      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+ *        resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
+ *      }),
+ *    });
+ *
  */
 export interface AwsSdkCall {
   /**
@@ -160,9 +164,10 @@ export interface AwsSdkCall {
   readonly outputPaths?: string[];
 
   /**
-   * Used for running the SDK calls in underlying lambda with a different role
+   * Used for running the SDK calls in underlying lambda with a different role.
    * Can be used primarily for cross-account requests to for example connect
-   * hostedzone with a shared vpc
+   * hostedzone with a shared vpc.
+   * Region controls where assumeRole call is made.
    *
    * Example for Route53 / associateVPCWithHostedZone
    *
@@ -449,7 +454,7 @@ export class AwsCustomResource extends Construct implements iam.IGrantable {
 
     if (installLatestAwsSdk && props.installLatestAwsSdk === undefined) {
       // This is dangerous. Add a warning.
-      Annotations.of(this).addWarning([
+      Annotations.of(this).addWarningV2('@aws-cdk/custom-resources:installLatestAwsSdkNotSpecified', [
         'installLatestAwsSdk was not specified, and defaults to true. You probably do not want this.',
         `Set the global context flag \'${cxapi.AWS_CUSTOM_RESOURCE_LATEST_SDK_DEFAULT}\' to false to switch this behavior off project-wide,`,
         'or set the property explicitly to true if you know you need to call APIs that are not in Lambda\'s built-in SDK version.',

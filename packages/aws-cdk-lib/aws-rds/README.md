@@ -465,6 +465,31 @@ const gp3Instance = new rds.DatabaseInstance(this, 'Gp3Instance', {
 });
 ```
 
+Use the `caCertificate` property to specify the [CA certificates](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL-certificate-rotation.html)
+to use for the instance:
+
+```ts
+declare const vpc: ec2.Vpc;
+
+new rds.DatabaseInstance(this, 'Instance', {
+  engine: rds.DatabaseInstanceEngine.mysql({ version: rds.MysqlEngineVersion.VER_8_0_30 }),
+  vpc,
+  caCertificate: rds.CaCertificate.RDS_CA_RDS2048_G1,
+});
+```
+
+You can specify a custom CA certificate with:
+
+```ts
+declare const vpc: ec2.Vpc;
+
+new rds.DatabaseInstance(this, 'Instance', {
+  engine: rds.DatabaseInstanceEngine.mysql({ version: rds.MysqlEngineVersion.VER_8_0_30 }),
+  vpc,
+  caCertificate: rds.CaCertificate.of('future-rds-ca'),
+});
+```
+
 ## Setting Public Accessibility
 
 You can set public accessibility for the database instance or cluster using the `publiclyAccessible` property.
@@ -671,7 +696,7 @@ instance.addRotationSingleUser({
 });
 ```
 
-See also [@aws-cdk/aws-secretsmanager](https://github.com/aws/aws-cdk/blob/main/packages/%40aws-cdk/aws-secretsmanager/README.md) for credentials rotation of existing clusters/instances.
+See also [aws-cdk-lib/aws-secretsmanager](https://github.com/aws/aws-cdk/blob/main/packages/aws-cdk-lib/aws-secretsmanager/README.md) for credentials rotation of existing clusters/instances.
 
 By default, any stack updates will cause AWS Secrets Manager to rotate a secret immediately. To prevent this behavior and wait until the next scheduled rotation window specified via the `automaticallyAfter` property, set the `rotateImmediatelyOnUpdate` property to false:
 
@@ -1018,7 +1043,7 @@ const cluster = new rds.ServerlessCluster(this, 'AnotherCluster', {
 
 declare const code: lambda.Code;
 const fn = new lambda.Function(this, 'MyFunction', {
-  runtime: lambda.Runtime.NODEJS_14_X,
+  runtime: lambda.Runtime.NODEJS_LATEST,
   handler: 'index.handler',
   code,
   environment: {

@@ -12,6 +12,7 @@ class Test extends cdk.Stack {
       retainDeployments: true,
       cloudWatchRole: true,
       minCompressionSize: Size.bytes(1024),
+      description: 'api description',
       deployOptions: {
         cacheClusterEnabled: true,
         stageName: 'beta',
@@ -27,7 +28,7 @@ class Test extends cdk.Stack {
     });
 
     const handler = new lambda.Function(this, 'MyHandler', {
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_16_X,
       code: lambda.Code.fromInline(`exports.handler = ${handlerCode}`),
       handler: 'index.handler',
     });
