@@ -2,7 +2,7 @@ import { CfnJob } from 'aws-cdk-lib/aws-glue';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Job, JobProperties } from './job';
 import { Construct } from 'constructs';
-import { JobType, GlueVersion, JobLanguage, PythonVersion, WorkerType } from '../constants';
+import { JobType, GlueVersion, PythonVersion, WorkerType } from '../constants';
 
 /**
  * Python Shell Jobs class
@@ -17,12 +17,12 @@ import { JobType, GlueVersion, JobLanguage, PythonVersion, WorkerType } from '..
  * Properties for creating a Python Shell job
  */
 export interface PythonShellJobProperties extends JobProperties {
-    /**
-    * Python Version
-    * The version of Python to use to execute this job
-    * @default 3.9 for Shell Jobs
-    **/
-    readonly pythonVersion?: PythonVersion;
+  /**
+  * Python Version
+  * The version of Python to use to execute this job
+  * @default 3.9 for Shell Jobs
+  **/
+  readonly pythonVersion?: PythonVersion;
 }
 
 /**
@@ -30,80 +30,79 @@ export interface PythonShellJobProperties extends JobProperties {
  */
 export class PythonShellJob extends Job {
 
-    // Implement abstract Job attributes
-    public readonly jobArn: string;
-    public readonly jobName: string;
-    public readonly role: iam.IRole;
-    public readonly grantPrincipal: iam.IPrincipal;
+  // Implement abstract Job attributes
+  public readonly jobArn: string;
+  public readonly jobName: string;
+  public readonly role: iam.IRole;
+  public readonly grantPrincipal: iam.IPrincipal;
 
-    /**
-    * PythonShellJob constructor
-    *
-    * @param scope
-    * @param id
-    * @param props
-    */
-    constructor(scope: Construct, id: string, props: PythonShellJobProperties) {
-        super(scope, id, {physicalName: props.jobName,});
+  /**
+  * PythonShellJob constructor
+  *
+  * @param scope
+  * @param id
+  * @param props
+  */
+  constructor(scope: Construct, id: string, props: PythonShellJobProperties) {
+    super(scope, id, { physicalName: props.jobName });
 
-        // Set up role and permissions for principal
-        this.role = props.role, {
-            assumedBy: new iam.ServicePrincipal('glue.amazonaws.com'),
-            managedPolicies: [iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSGlueServiceRole')],
-        };
-        this.grantPrincipal = this.role;
+    // Set up role and permissions for principal
+    this.role = props.role, {
+      assumedBy: new iam.ServicePrincipal('glue.amazonaws.com'),
+      managedPolicies: [iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSGlueServiceRole')],
+    };
+    this.grantPrincipal = this.role;
 
-        // Gather executable arguments
-        const executableArgs = this.executableArguments(props);
+    // Gather executable arguments
+    const executableArgs = this.executableArguments(props);
 
-        // Combine command line arguments into a single line item
-        const defaultArguments = {
-            ...executableArgs,
-            ...this.checkNoReservedArgs(props.defaultArguments),
-        }
+    // Combine command line arguments into a single line item
+    const defaultArguments = {
+      ...executableArgs,
+      ...this.checkNoReservedArgs(props.defaultArguments),
+    };
 
-        const jobResource = new CfnJob(this, 'Resource', {
-            name: props.jobName,
-            description: props.description,
-            role: this.role.roleArn,
-            command: {
-              name: JobType.PYTHON_SHELL,
-              scriptLocation: this.codeS3ObjectUrl(props.script),
-              pythonVersion: props.pythonVersion ?  props.pythonVersion : PythonVersion.THREE_NINE,
-            },
-            glueVersion: props.glueVersion ? props.glueVersion : GlueVersion.V4_0,
-            workerType: props.workerType ? props.workerType : WorkerType.G_2X,
-            numberOfWorkers: props.numberOrWorkers,
-            maxRetries: props.maxRetries,
-            executionProperty: props.maxConcurrentRuns ? { maxConcurrentRuns: props.maxConcurrentRuns } : undefined,
-            timeout: props.timeout?.toMinutes(),
-            connections: props.connections ? { connections: props.connections.map((connection) => connection.connectionName) } : undefined,
-            securityConfiguration: props.securityConfiguration?.securityConfigurationName,
-            tags: props.tags,
-            defaultArguments
-        });
+    const jobResource = new CfnJob(this, 'Resource', {
+      name: props.jobName,
+      description: props.description,
+      role: this.role.roleArn,
+      command: {
+        name: JobType.PYTHON_SHELL,
+        scriptLocation: this.codeS3ObjectUrl(props.script),
+        pythonVersion: props.pythonVersion ? props.pythonVersion : PythonVersion.THREE_NINE,
+      },
+      glueVersion: props.glueVersion ? props.glueVersion : GlueVersion.V4_0,
+      workerType: props.workerType ? props.workerType : WorkerType.G_2X,
+      numberOfWorkers: props.numberOrWorkers,
+      maxRetries: props.maxRetries,
+      executionProperty: props.maxConcurrentRuns ? { maxConcurrentRuns: props.maxConcurrentRuns } : undefined,
+      timeout: props.timeout?.toMinutes(),
+      connections: props.connections ? { connections: props.connections.map((connection) => connection.connectionName) } : undefined,
+      securityConfiguration: props.securityConfiguration?.securityConfigurationName,
+      tags: props.tags,
+      defaultArguments,
+    });
 
-        const resourceName = this.getResourceNameAttribute(jobResource.ref);
-        this.jobArn = this.buildJobArn(this, resourceName);
-        this.jobName = resourceName;
+    const resourceName = this.getResourceNameAttribute(jobResource.ref);
+    this.jobArn = this.buildJobArn(this, resourceName);
+    this.jobName = resourceName;
+  }
+
+  /**
+  * Set the executable arguments with best practices enabled by default
+  *
+  * @param props
+  * @returns An array of arguments for Glue to use on execution
+  */
+  private executableArguments(props: PythonShellJobProperties) {
+    const args: { [key: string]: string } = {};
+
+    //If no Python version set (default 3.9) or the version is set to 3.9 then set library-set argument
+    if (!props.pythonVersion || props.pythonVersion == PythonVersion.THREE_NINE) {
+      //Selecting this option includes common libraries for Python 3.9
+      args['library-set'] = 'analytics';
     }
 
-    /**
-    * Set the executable arguments with best practices enabled by default
-    *
-    * @param props
-    * @returns An array of arguments for Glue to use on execution
-    */
-    private executableArguments(props: PythonShellJobProperties) {
-        const args: { [key: string]: string } = {};
-
-        //If no Python version set (default 3.9) or the version is set to 3.9 then set library-set argument
-        if (!props.pythonVersion || props.pythonVersion == PythonVersion.THREE_NINE)
-        {
-            //Selecting this option includes common libraries for Python 3.9
-            args['library-set'] = 'analytics';
-        }
-
-        return args
-    }
+    return args;
+  }
 }
