@@ -15,3 +15,4 @@ export * from './constants';
 export * from './jobs/job';
 export * from './jobs/spark-ui';
 export * from './jobs/pyspark-etl-job';
+export * from './jobs/ray-job';

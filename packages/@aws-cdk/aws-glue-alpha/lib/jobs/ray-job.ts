@@ -1,9 +1,8 @@
 import { CfnJob } from 'aws-cdk-lib/aws-glue';
-import { Bucket } from 'aws-cdk-lib/aws-s3';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Job, JobProperties } from './job';
 import { Construct } from 'constructs';
-import { JobType, GlueVersion, JobLanguage, WorkerType, Runtime } from '../constants';
+import { JobType, GlueVersion, WorkerType, Runtime } from '../constants';
 
 /**
  * Ray Jobs class
@@ -51,8 +50,8 @@ export class RayJob extends Job {
 
     // List of supported Glue versions by Ray
     const supportedGlueVersions = [
-      GlueVersion.V4_0,            
-    ]
+      GlueVersion.V4_0,
+    ];
 
     // Set up role and permissions for principal
     this.role = props.role, {
@@ -95,6 +94,10 @@ export class RayJob extends Job {
       tags: props.tags,
       defaultArguments,
     });
+
+    const resourceName = this.getResourceNameAttribute(jobResource.ref);
+    this.jobArn = this.buildJobArn(this, resourceName);
+    this.jobName = resourceName;
 
   }
 
