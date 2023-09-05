@@ -5,7 +5,7 @@ import * as kms from '../../aws-kms';
 import * as logs from '../../aws-logs';
 import * as s3 from '../../aws-s3';
 import * as cdk from '../../core';
-import { RemovalPolicy, Stack } from '../../core';
+import { RemovalPolicy, Stack, Annotations as CoreAnnotations } from '../../core';
 import {
   AuroraEngineVersion, AuroraMysqlEngineVersion, AuroraPostgresEngineVersion, CfnDBCluster, Credentials, DatabaseCluster,
   DatabaseClusterEngine, DatabaseClusterFromSnapshot, ParameterGroup, PerformanceInsightRetention, SubnetGroup, DatabaseSecret,
@@ -207,7 +207,7 @@ describe('cluster new api', () => {
   });
 
   describe('migrate from instanceProps', () => {
-    test('template contains no changes', () => {
+    test('template contains no changes (provisioned instances)', () => {
       // GIVEN
       const stack1 = testStack();
       const stack2 = testStack();
@@ -267,6 +267,85 @@ describe('cluster new api', () => {
       expect(
         test1Template,
       ).toEqual(Template.fromStack(stack2).toJSON());
+    });
+
+    test('template contains no changes (serverless instances)', () => {
+      // GIVEN
+      const stack1 = testStack();
+      const stack2 = testStack();
+
+      function createCase(stack: Stack) {
+        const vpc = new ec2.Vpc(stack, 'VPC');
+
+        // WHEN
+        const pg = new ParameterGroup(stack, 'pg', {
+          engine: DatabaseClusterEngine.AURORA,
+        });
+        const sg = new ec2.SecurityGroup(stack, 'sg', {
+          vpc,
+        });
+        const instanceProps = {
+          instanceType: new ec2.InstanceType('serverless'),
+          vpc,
+          allowMajorVersionUpgrade: true,
+          autoMinorVersionUpgrade: true,
+          deleteAutomatedBackups: true,
+          enablePerformanceInsights: true,
+          parameterGroup: pg,
+          securityGroups: [sg],
+        };
+        return instanceProps;
+      }
+      const test1 = createCase(stack1);
+      const test2 = createCase(stack2);
+
+      // Create serverless cluster using workaround described here:
+      // https://github.com/aws/aws-cdk/issues/20197#issuecomment-1284485844
+      const workaroundCluster = new DatabaseCluster(stack1, 'Database', {
+        engine: DatabaseClusterEngine.AURORA,
+        instanceProps: test1,
+        iamAuthentication: true,
+      });
+
+      cdk.Aspects.of(workaroundCluster).add({
+        visit(node) {
+          if (node instanceof CfnDBCluster) {
+            node.serverlessV2ScalingConfiguration = {
+              minCapacity: 1,
+              maxCapacity: 12,
+            };
+          }
+        },
+      });
+
+      // Create serverless cluster using new/official approach.
+      // This should provide a non-breaking migration path from the workaround.
+      new DatabaseCluster(stack2, 'Database', {
+        engine: DatabaseClusterEngine.AURORA,
+        vpc: test2.vpc,
+        securityGroups: test2.securityGroups,
+        writer: ClusterInstance.serverlessV2('Instance1', {
+          ...test2,
+          isFromLegacyInstanceProps: true,
+        }),
+        readers: [
+          ClusterInstance.serverlessV2('Instance2', {
+            ...test2,
+            scaleWithWriter: true,
+            isFromLegacyInstanceProps: true,
+          }),
+        ],
+        iamAuthentication: true,
+        serverlessV2MinCapacity: 1,
+        serverlessV2MaxCapacity: 12,
+      });
+
+      // THEN
+      const test1Template = Template.fromStack(stack1).toJSON();
+      // deleteAutomatedBackups is not needed on the instance, it is set on the cluster
+      delete test1Template.Resources.DatabaseInstance1844F58FD.Properties.DeleteAutomatedBackups;
+      delete test1Template.Resources.DatabaseInstance2AA380DEE.Properties.DeleteAutomatedBackups;
+      expect(test1Template).toEqual(Template.fromStack(stack2).toJSON());
     });
   });
 
@@ -431,6 +510,89 @@ describe('cluster new api', () => {
         `Cluster ${cluster.node.id} only has serverless readers and no reader is in promotion tier 0-1.`+
         'Serverless readers in promotion tiers >= 2 will NOT scale with the writer, which can lead to '+
         'availability issues if a failover event occurs. It is recommended that at least one reader '+
+        'has `scaleWithWriter` set to true [ack: @aws-cdk/aws-rds:noFailoverServerlessReaders]',
+      );
+    });
+
+    test('serverless reader in promotion tier 2 does not throws', () => {
+      // GIVEN
+      const stack = testStack();
+      const vpc = new ec2.Vpc(stack, 'VPC');
+
+      // WHEN
+      const cluster = new DatabaseCluster(stack, 'Database', {
+        engine: DatabaseClusterEngine.AURORA,
+        vpc,
+        writer: ClusterInstance.provisioned('writer'),
+        readers: [ClusterInstance.serverlessV2('reader')],
+        iamAuthentication: true,
+      });
+
+      CoreAnnotations.of(stack).acknowledgeWarning('RDSNoFailoverServerlessReaders');
+      // THEN
+      const template = Template.fromStack(stack);
+      template.resourceCountIs('AWS::RDS::DBInstance', 2);
+      template.hasResourceProperties('AWS::RDS::DBInstance', {
+        DBClusterIdentifier: { Ref: 'DatabaseB269D8BB' },
+        DBInstanceClass: 'db.t3.medium',
+        PromotionTier: 0,
+      });
+
+      template.hasResourceProperties('AWS::RDS::DBInstance', {
+        DBClusterIdentifier: { Ref: 'DatabaseB269D8BB' },
+        DBInstanceClass: 'db.serverless',
+        PromotionTier: 2,
+      });
+
+      Annotations.fromStack(stack).hasNoWarning('*',
+        `Cluster ${cluster.node.id} only has serverless readers and no reader is in promotion tier 0-1.`+
+        'Serverless readers in promotion tiers >= 2 will NOT scale with the writer, which can lead to '+
+        'availability issues if a failover event occurs. It is recommended that at least one reader '+
+        'has `scaleWithWriter` set to true',
+      );
+    });
+
+    test('serverless reader in promotion tier 2 does not throws with root context', () => {
+      // GIVEN
+      const app = new cdk.App({
+        context: {
+          ACKNOWLEDGEMENTS_CONTEXT_KEY: {
+            RDSNoFailoverServerlessReaders: ['Default/Database'],
+
+          },
+        },
+      });
+      const stack = testStack(app);
+      const vpc = new ec2.Vpc(stack, 'VPC');
+
+      // WHEN
+      const cluster = new DatabaseCluster(stack, 'Database', {
+        engine: DatabaseClusterEngine.AURORA,
+        vpc,
+        writer: ClusterInstance.provisioned('writer'),
+        readers: [ClusterInstance.serverlessV2('reader')],
+        iamAuthentication: true,
+      });
+
+      // THEN
+      const template = Template.fromStack(stack);
+      template.resourceCountIs('AWS::RDS::DBInstance', 2);
+      template.hasResourceProperties('AWS::RDS::DBInstance', {
+        DBClusterIdentifier: { Ref: 'DatabaseB269D8BB' },
+        DBInstanceClass: 'db.t3.medium',
+        PromotionTier: 0,
+      });
+
+      template.hasResourceProperties('AWS::RDS::DBInstance', {
+        DBClusterIdentifier: { Ref: 'DatabaseB269D8BB' },
+        DBInstanceClass: 'db.serverless',
+        PromotionTier: 2,
+      });
+
+      Annotations.fromStack(stack).hasNoWarning('*',
+        `Cluster ${cluster.node.id} only has serverless readers and no reader is in promotion tier 0-1.`+
+        'Serverless readers in promotion tiers >= 2 will NOT scale with the writer, which can lead to '+
+        'availability issues if a failover event occurs. It is recommended that at least one reader '+
         'has `scaleWithWriter` set to true',
       );
     });
@@ -512,7 +674,7 @@ describe('cluster new api', () => {
         'For high availability any serverless instances in promotion tiers 0-1 '+
         'should be able to scale to match the provisioned instance capacity.\n'+
         'Serverless instance reader is in promotion tier 1,\n'+
-        `But can not scale to match the provisioned writer instance (${instanceType.toString()})`,
+        `But can not scale to match the provisioned writer instance (${instanceType.toString()}) [ack: @aws-cdk/aws-rds:serverlessInstanceCantScaleWithWriter]`,
       );
     });
   });
@@ -595,7 +757,7 @@ describe('cluster new api', () => {
         'InstanceSize as the writer. Any of these instances could be chosen as the new writer in the event '+
         'of a failover.\n'+
         'Writer InstanceSize: m5.24xlarge\n'+
-        'Reader InstanceSizes: t3.medium, m5.xlarge',
+        'Reader InstanceSizes: t3.medium, m5.xlarge [ack: @aws-cdk/aws-rds:provisionedReadersDontMatchWriter]',
       );
     });
 
@@ -729,7 +891,7 @@ describe('cluster new api', () => {
       Annotations.fromStack(stack).hasWarning('*',
         'There are serverlessV2 readers in tier 2. Since there are no instances in a higher tier, '+
         'any instance in this tier is a failover target. Since this tier is > 1 the serverless reader will not scale '+
-        'with the writer which could lead to availability issues during failover.',
+        'with the writer which could lead to availability issues during failover. [ack: @aws-cdk/aws-rds:serverlessInHighestTier2-15]',
       );
 
       Annotations.fromStack(stack).hasWarning('*',
@@ -737,7 +899,7 @@ describe('cluster new api', () => {
         'InstanceSize as the writer. Any of these instances could be chosen as the new writer in the event '+
         'of a failover.\n'+
         'Writer InstanceSize: m5.24xlarge\n'+
-        'Reader InstanceSizes: m5.xlarge',
+        'Reader InstanceSizes: m5.xlarge [ack: @aws-cdk/aws-rds:provisionedReadersDontMatchWriter]',
       );
     });
   });
@@ -1926,6 +2088,72 @@ describe('cluster', () => {
         },
         excludeCharacters: " %+~`#$&*()|[]{}:;<>?!'/@\"\\",
       },
+    });
+  });
+
+  test('addRotationSingleUser() without immediate rotation', () => {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const vpc = new ec2.Vpc(stack, 'VPC');
+    const cluster = new DatabaseCluster(stack, 'Database', {
+      engine: DatabaseClusterEngine.AURORA_MYSQL,
+      writer: ClusterInstance.serverlessV2('writer'),
+      vpc,
+    });
+
+    // WHEN
+    cluster.addRotationSingleUser({ rotateImmediatelyOnUpdate: false });
+
+    // THEN
+    Template.fromStack(stack).hasResourceProperties('AWS::SecretsManager::RotationSchedule', {
+      SecretId: {
+        Ref: 'DatabaseSecretAttachmentE5D1B020',
+      },
+      RotationLambdaARN: {
+        'Fn::GetAtt': [
+          'DatabaseRotationSingleUser65F55654',
+          'Outputs.RotationLambdaARN',
+        ],
+      },
+      RotationRules: {
+        AutomaticallyAfterDays: 30,
+      },
+      RotateImmediatelyOnUpdate: false,
+    });
+  });
+
+  test('addRotationMultiUser() without immediate rotation', () => {
+    // GIVEN
+    const stack = new cdk.Stack();
+    const vpc = new ec2.Vpc(stack, 'VPC');
+    const cluster = new DatabaseCluster(stack, 'Database', {
+      engine: DatabaseClusterEngine.AURORA_MYSQL,
+      writer: ClusterInstance.serverlessV2('writer'),
+      vpc,
+    });
+    const userSecret = new DatabaseSecret(stack, 'UserSecret', { username: 'user' });
+
+    // WHEN
+    cluster.addRotationMultiUser('user', {
+      secret: userSecret.attach(cluster),
+      rotateImmediatelyOnUpdate: false,
+    });
+
+    // THEN
+    Template.fromStack(stack).hasResourceProperties('AWS::SecretsManager::RotationSchedule', {
+      SecretId: {
+        Ref: 'UserSecretAttachment16ACBE6D',
+      },
+      RotationLambdaARN: {
+        'Fn::GetAtt': [
+          'DatabaseuserECD1FB0C',
+          'Outputs.RotationLambdaARN',
+        ],
+      },
+      RotationRules: {
+        AutomaticallyAfterDays: 30,
+      },
+      RotateImmediatelyOnUpdate: false,
     });
   });
 

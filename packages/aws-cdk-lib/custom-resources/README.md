@@ -1,5 +1,6 @@
 # AWS CDK Custom Resources
 
+This module is part of the [AWS Cloud Development Kit](https://github.com/aws/aws-cdk) project.
 
 ## Provider Framework
 
@@ -136,25 +137,25 @@ AWS CloudFormation.
 The input event includes the following fields derived from the [Custom Resource
 Provider Request]:
 
-|Field|Type|Description
-|-----|----|----------------
-|`RequestType`|String|The type of lifecycle event: `Create`, `Update` or `Delete`.
-|`LogicalResourceId`|String|The template developer-chosen name (logical ID) of the custom resource in the AWS CloudFormation template.
-|`PhysicalResourceId`|String|This field will only be present for `Update` and `Delete` events and includes the value returned in `PhysicalResourceId` of the previous operation.
-|`ResourceProperties`|JSON|This field contains the properties defined in the template for this custom resource.
-|`OldResourceProperties`|JSON|This field will only be present for `Update` events and contains the resource properties that were declared previous to the update request.
-|`ResourceType`|String|The resource type defined for this custom resource in the template. A provider may handle any number of custom resource types.
-|`RequestId`|String|A unique ID for the request.
-|`StackId`|String|The ARN that identifies the stack that contains the custom resource.
+| Field                   | Type   | Description                                                                                                                                         |
+| ----------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RequestType`           | String | The type of lifecycle event: `Create`, `Update` or `Delete`.                                                                                        |
+| `LogicalResourceId`     | String | The template developer-chosen name (logical ID) of the custom resource in the AWS CloudFormation template.                                          |
+| `PhysicalResourceId`    | String | This field will only be present for `Update` and `Delete` events and includes the value returned in `PhysicalResourceId` of the previous operation. |
+| `ResourceProperties`    | JSON   | This field contains the properties defined in the template for this custom resource.                                                                |
+| `OldResourceProperties` | JSON   | This field will only be present for `Update` events and contains the resource properties that were declared previous to the update request.         |
+| `ResourceType`          | String | The resource type defined for this custom resource in the template. A provider may handle any number of custom resource types.                      |
+| `RequestId`             | String | A unique ID for the request.                                                                                                                        |
+| `StackId`               | String | The ARN that identifies the stack that contains the custom resource.                                                                                |
 
 The return value from `onEvent` must be a JSON object with the following fields:
 
-|Field|Type|Required|Description
-|-----|----|--------|-----------
-|`PhysicalResourceId`|String|No|The allocated/assigned physical ID of the resource. If omitted for `Create` events, the event's `RequestId` will be used. For `Update`, the current physical ID will be used. If a different value is returned, CloudFormation will follow with a subsequent `Delete` for the previous ID (resource replacement). For `Delete`, it will always return the current physical resource ID, and if the user returns a different one, an error will occur.
-|`Data`|JSON|No|Resource attributes, which can later be retrieved through `Fn::GetAtt` on the custom resource object.
-|`NoEcho`|Boolean|No|Whether to mask the output of the custom resource when retrieved by using the `Fn::GetAtt` function.
-|*any*|*any*|No|Any other field included in the response will be passed through to `isComplete`. This can sometimes be useful to pass state between the handlers.
+| Field                | Type    | Required | Description                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| -------------------- | ------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PhysicalResourceId` | String  | No       | The allocated/assigned physical ID of the resource. If omitted for `Create` events, the event's `RequestId` will be used. For `Update`, the current physical ID will be used. If a different value is returned, CloudFormation will follow with a subsequent `Delete` for the previous ID (resource replacement). For `Delete`, it will always return the current physical resource ID, and if the user returns a different one, an error will occur. |
+| `Data`               | JSON    | No       | Resource attributes, which can later be retrieved through `Fn::GetAtt` on the custom resource object.                                                                                                                                                                                                                                                                                                                                                 |
+| `NoEcho`             | Boolean | No       | Whether to mask the output of the custom resource when retrieved by using the `Fn::GetAtt` function.                                                                                                                                                                                                                                                                                                                                                  |
+| *any*                | *any*   | No       | Any other field included in the response will be passed through to `isComplete`. This can sometimes be useful to pass state between the handlers.                                                                                                                                                                                                                                                                                                     |
 
 [Custom Resource Provider Request]: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/crpg-ref-requests.html#crpg-ref-request-fields
 
@@ -183,10 +184,10 @@ described above.
 
 The return value must be a JSON object with the following fields:
 
-|Field|Type|Required|Description
-|-----|----|--------|-----------
-|`IsComplete`|Boolean|Yes|Indicates if the operation has finished or not.
-|`Data`|JSON|No|May only be sent if `IsComplete` is `true` and includes additional resource attributes. These attributes will be **merged** with the ones returned from `onEvent`
+| Field        | Type    | Required | Description                                                                                                                                                       |
+| ------------ | ------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `IsComplete` | Boolean | Yes      | Indicates if the operation has finished or not.                                                                                                                   |
+| `Data`       | JSON    | No       | May only be sent if `IsComplete` is `true` and includes additional resource attributes. These attributes will be **merged** with the ones returned from `onEvent` |
 
 ### Physical Resource IDs
 
@@ -285,7 +286,7 @@ to all buckets:
 
 ```ts
 new lambda.Function(this, 'OnEventHandler', {
-  runtime: lambda.Runtime.NODEJS_14_X,
+  runtime: lambda.Runtime.NODEJS_LATEST,
   handler: 'index.handler',
   code: lambda.Code.fromInline('my code'),
   initialPolicy: [
@@ -344,7 +345,10 @@ This sample demonstrates the following concepts:
 
 #### S3Assert
 
-Checks that the textual contents of an S3 object matches a certain value. The check will be retried for 5 minutes as long as the object is not found or the value is different. See the source code for the [construct](https://github.com/aws/aws-cdk/blob/main/packages/aws-cdk-lib/custom-resources/test/provider-framework/integration-test-fixtures/s3-assert.ts) and [handler](https://github.com/aws/aws-cdk/blob/main/packages/aws-cdk-lib/custom-resources/test/provider-framework/integration-test-fixtures/s3-assert-handler/index.py).
+Checks that the textual contents of an S3 object matches a certain value. The check will be retried
+for 5 minutes as long as the object is not found or the value is different. See the source code for the
+[construct](https://github.com/aws/aws-cdk/blob/main/packages/aws-cdk-lib/custom-resources/test/provider-framework/integration-test-fixtures/s3-assert.ts)
+and [handler](https://github.com/aws/aws-cdk/blob/main/packages/aws-cdk-lib/custom-resources/test/provider-framework/integration-test-fixtures/s3-assert-handler/index.py).
 
 The following example defines an `S3Assert` resource which waits until
 `myfile.txt` in `myBucket` exists and includes the contents `foo bar`:
@@ -384,7 +388,28 @@ const myProvider = new cr.Provider(this, 'MyProvider', {
   role: myRole,
   providerFunctionName: 'the-lambda-name',   // Optional
 });
+```
 
+### Customizing Provider Function environment encryption key
+
+Sometimes it may be useful to manually set a AWS KMS key for the Provider Function Lambda and therefore
+be able to view, manage and audit the key usage.
+
+```ts
+import * as kms from 'aws-cdk-lib/aws-kms';
+
+declare const onEvent: lambda.Function;
+declare const isComplete: lambda.Function;
+declare const myRole: iam.Role;
+
+const key = new kms.Key(this, 'MyKey');
+const myProvider = new cr.Provider(this, 'MyProvider', {
+  onEventHandler: onEvent,
+  isCompleteHandler: isComplete,
+  logRetention: logs.RetentionDays.ONE_DAY,
+  role: myRole,
+  providerFunctionEnvEncryption: key,   // Optional
+});
 ```
 
 ## Custom Resources for AWS APIs
@@ -406,7 +431,7 @@ Path to data must be specified using a dot notation, e.g. to get the string valu
 of the `Title` attribute for the first item returned by `dynamodb.query` it should
 be `Items.0.Title.S`.
 
-To make sure that the newest API calls are available the latest AWS SDK v2 is installed
+To make sure that the newest API calls are available the latest AWS SDK v3 is installed
 in the Lambda function implementing the custom resource. The installation takes around 60
 seconds. If you prefer to optimize for speed, you can disable the installation by setting
 the `installLatestAwsSdk` prop to `false`.
@@ -626,18 +651,10 @@ const getParameter = new cr.AwsCustomResource(this, 'AssociateVPCWithHostedZone'
 
 #### Using AWS SDK for JavaScript v3
 
-`AwsCustomResource` experimentally supports AWS SDK for JavaScript v3 (NODEJS_18_X or higher). In AWS SDK for JavaScript v3, packages are installed for each service. Therefore, specify the package name for `service`. Also, `action` specifies the XxxClient operations provided in the package. This example is the same as `SSM.getParameter` in v2.
+`AwsCustomResource` uses Node 18 and aws sdk v3 by default. You can specify the service as either the name of the sdk module, or just the service name, IE `@aws-sdk/client-ssm` or `SSM`, and the action as either the client method name or the sdk v3 command, `getParameter` or `GetParameterCommand`. It is recommended to use the v3 format for new AwsCustomResources going forward.
 
 ```ts
-import * as regionInfo from 'aws-cdk-lib/region-info';
-
-// change custom resource default runtime
-regionInfo.Fact.register({
-  region: 'us-east-1', // your region
-  name: regionInfo.FactName.DEFAULT_CR_NODE_VERSION,
-  value: lambda.Runtime.NODEJS_18_X.name,
-}, true);
-new AwsCustomResource(this, 'GetParameter', {
+new cr.AwsCustomResource(this, 'GetParameter', {
   resourceType: 'Custom::SSMParameter',
   onUpdate: {
     service: '@aws-sdk/client-ssm', // 'SSM' in v2
@@ -646,13 +663,32 @@ new AwsCustomResource(this, 'GetParameter', {
       Name: 'foo',
       WithDecryption: true,
     },
-    physicalResourceId: PhysicalResourceId.fromResponse('Parameter.ARN'),
+    physicalResourceId: cr.PhysicalResourceId.fromResponse('Parameter.ARN'),
   },
 });
 ```
 
-If you are using `NODEJS_18_X` or higher, you can also use the existing AWS SDK for JavaScript v2 style.
+#### Making Cross Account Calls
 
----
+Example of making a cross account call using an assumed role. If deploying the custom resource in a region where the cross account role is not defined (i.e. an opt-in region that is not enabled in the account owning the role), set the region parameter to a region enabled in that account.
 
-This module is part of the [AWS Cloud Development Kit](https://github.com/aws/aws-cdk) project.
+```ts
+const crossAccountRoleArn = 'arn:aws:iam::OTHERACCOUNT:role/CrossAccountRoleName'; // arn of role deployed in separate account
+
+const callRegion = 'us-west-1'; // sdk call to be made in specified region (optional)
+
+new cr.AwsCustomResource(this, 'CrossAccount', {
+  onCreate: {
+    assumedRoleArn: crossAccountRoleArn,
+    region: callRegion, // optional
+    service: '@aws-sdk/client-sts',
+    action: 'GetCallerIdentityCommand',
+    physicalResourceId: cr.PhysicalResourceId.of('id'),
+  },
+  policy: cr.AwsCustomResourcePolicy.fromStatements([iam.PolicyStatement.fromJson({
+    Effect: "Allow",
+    Action: "sts:AssumeRole",
+    Resource: crossAccountRoleArn,
+  })]),
+});
+```

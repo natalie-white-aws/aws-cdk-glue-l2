@@ -12,7 +12,7 @@ describe('lambda api', () => {
     const handler = new lambda.Function(stack, 'handler', {
       handler: 'index.handler',
       code: lambda.Code.fromInline('boom'),
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_16_X,
     });
 
     // WHEN
@@ -74,7 +74,7 @@ describe('lambda api', () => {
     const handler = new lambda.Function(stack, 'handler', {
       handler: 'index.handler',
       code: lambda.Code.fromInline('boom'),
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_16_X,
     });
     const alias = new lambda.Alias(stack, 'alias', {
       aliasName: 'my-alias',
@@ -139,7 +139,7 @@ describe('lambda api', () => {
     const handler = new lambda.Function(stack, 'handler', {
       handler: 'index.handler',
       code: lambda.Code.fromInline('boom'),
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_16_X,
     });
 
     // WHEN
@@ -189,7 +189,7 @@ describe('lambda api', () => {
     // THEN
     const template = Template.fromStack(stack);
     // Ensure that all methods have "AWS_PROXY" integrations.
-    const methods = template.findResources('AWS::ApiGateway::Mathod');
+    const methods = template.findResources('AWS::ApiGateway::Method');
     const hasProxyIntegration = Match.objectLike({ Integration: Match.objectLike({ Type: 'AWS_PROXY' }) });
     for (const method of Object.values(methods)) {
       expect(hasProxyIntegration.test(method)).toBeTruthy();
@@ -203,7 +203,7 @@ describe('lambda api', () => {
     const handler = new lambda.Function(stack, 'handler', {
       handler: 'index.handler',
       code: lambda.Code.fromInline('boom'),
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_16_X,
     });
 
     expect(() => new apigw.LambdaRestApi(stack, 'lambda-rest-api', {
@@ -224,7 +224,7 @@ describe('lambda api', () => {
     const handler = new lambda.Function(stack, 'handler', {
       handler: 'index.handler',
       code: lambda.Code.fromInline('boom'),
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_16_X,
     });
 
     // WHEN
@@ -278,7 +278,7 @@ describe('lambda api', () => {
     const handler = new lambda.Function(stack, 'handler', {
       handler: 'index.handler',
       code: lambda.Code.fromInline('boom'),
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_16_X,
     });
 
     // WHEN
@@ -340,7 +340,7 @@ describe('lambda api', () => {
       handler: new lambda.Function(stack, 'handler', {
         handler: 'index.handler',
         code: lambda.Code.fromInline('boom'),
-        runtime: lambda.Runtime.NODEJS_14_X,
+        runtime: lambda.Runtime.NODEJS_16_X,
       }),
       restApiName: cdk.PhysicalName.GENERATE_IF_NEEDED,
     });

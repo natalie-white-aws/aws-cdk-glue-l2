@@ -1,5 +1,5 @@
 {
-  "version": "32.0.0",
+  "version": "34.0.0",
   "artifacts": {
     "Stack1.assets": {
       "type": "cdk:asset-manifest",
@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/da818761c778b9099af670b7379d3db67a8f46572795cf76cc3f7442b341fb86.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/1595b714f06f04cf3b2e60976e8389a8d554ffffa4eca3eb8438f9a15d67116b.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -49,12 +49,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "MyFunc11BE70A62"
-          }
-        ],
-        "/Stack1/Adot-lambda-layerMap": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "AdotlambdalayerMap"
           }
         ],
         "/Stack1/MyFunc2/ServiceRole/Resource": [
@@ -140,33 +134,6 @@
             "type": "aws:cdk:logicalId",
             "data": "CheckBootstrapVersion"
           }
-        ],
-        "MyFunc6ServiceRoleCDDBC2C6": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "MyFunc6ServiceRoleCDDBC2C6",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
-            ]
-          }
-        ],
-        "MyFunc6ServiceRoleDefaultPolicyC4D4BF55": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "MyFunc6ServiceRoleDefaultPolicyC4D4BF55",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
-            ]
-          }
-        ],
-        "MyFunc60D944984": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "MyFunc60D944984",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
-            ]
-          }
         ]
       },
       "displayName": "Stack1"
@@ -187,7 +154,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/a4d1f60a1bf3af6d4d630d5c0557444ee8d18f93483887409a89dc8f34b228d5.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/6010a807a17c346691761911ce5d79987064910e874698ffba25d2bb3fa856c2.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -303,33 +270,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "CheckBootstrapVersion"
-          }
-        ],
-        "MyFunc6ServiceRoleCDDBC2C6": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "MyFunc6ServiceRoleCDDBC2C6",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
-            ]
-          }
-        ],
-        "MyFunc6ServiceRoleDefaultPolicyC4D4BF55": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "MyFunc6ServiceRoleDefaultPolicyC4D4BF55",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
-            ]
-          }
-        ],
-        "MyFunc60D944984": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "MyFunc60D944984",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
-            ]
           }
         ]
       },

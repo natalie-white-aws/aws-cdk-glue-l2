@@ -641,7 +641,7 @@ abstract class VpcBase extends Resource implements IVpc {
       if (placement.subnetGroupName !== undefined) {
         throw new Error('Please use only \'subnetGroupName\' (\'subnetName\' is deprecated and has the same behavior)');
       } else {
-        Annotations.of(this).addWarning('Usage of \'subnetName\' in SubnetSelection is deprecated, use \'subnetGroupName\' instead');
+        Annotations.of(this).addWarningV2('@aws-cdk/aws-ec2:subnetNameDeprecated', 'Usage of \'subnetName\' in SubnetSelection is deprecated, use \'subnetGroupName\' instead');
       }
       placement = { ...placement, subnetGroupName: placement.subnetName };
     }
@@ -1088,6 +1088,13 @@ export interface VpcProps {
    * @default true if '@aws-cdk/aws-ec2:restrictDefaultSecurityGroup' is enabled, false otherwise
    */
   readonly restrictDefaultSecurityGroup?: boolean;
+
+  /**
+   * If set to false then disable the creation of the default internet gateway
+   *
+   * @default true
+   */
+  readonly createInternetGateway?: boolean;
 }
 
 /**
@@ -1482,11 +1489,12 @@ export class Vpc extends VpcBase {
     // subnetConfiguration must be set before calling createSubnets
     this.createSubnets();
 
+    const createInternetGateway = props.createInternetGateway ?? true;
     const allowOutbound = this.subnetConfiguration.filter(
       subnet => (subnet.subnetType !== SubnetType.PRIVATE_ISOLATED && subnet.subnetType !== SubnetType.ISOLATED)).length > 0;
 
     // Create an Internet Gateway and attach it if necessary
-    if (allowOutbound) {
+    if (allowOutbound && createInternetGateway) {
       const igw = new CfnInternetGateway(this, 'IGW', {
       });
 
@@ -1692,7 +1700,7 @@ export class Vpc extends VpcBase {
     const id = 'Custom::VpcRestrictDefaultSG';
     const provider = CustomResourceProvider.getOrCreateProvider(this, id, {
       codeDirectory: path.join(__dirname, 'restrict-default-security-group-handler'),
-      runtime: CustomResourceProviderRuntime.NODEJS_16_X,
+      runtime: CustomResourceProviderRuntime.NODEJS_18_X,
       description: 'Lambda function for removing all inbound/outbound rules from the VPC default security group',
     });
     provider.addToRolePolicy({
@@ -2184,7 +2192,7 @@ class ImportedVpc extends VpcBase {
     // None of the values may be unresolved list tokens
     for (const k of Object.keys(props) as Array<keyof VpcAttributes>) {
       if (Array.isArray(props[k]) && Token.isUnresolved(props[k])) {
-        Annotations.of(this).addWarning(`fromVpcAttributes: '${k}' is a list token: the imported VPC will not work with constructs that require a list of subnets at synthesis time. Use 'Vpc.fromLookup()' or 'Fn.importListValue' instead.`);
+        Annotations.of(this).addWarningV2(`@aws-cdk/aws-ec2:vpcAttributeIsListToken${k}`, `fromVpcAttributes: '${k}' is a list token: the imported VPC will not work with constructs that require a list of subnets at synthesis time. Use 'Vpc.fromLookup()' or 'Fn.importListValue' instead.`);
       }
     }
 
@@ -2345,7 +2353,7 @@ class ImportedSubnet extends Resource implements ISubnet, IPublicSubnet, IPrivat
         ? `at '${Node.of(scope).path}/${id}'`
         : `'${attrs.subnetId}'`;
       // eslint-disable-next-line max-len
-      Annotations.of(this).addWarning(`No routeTableId was provided to the subnet ${ref}. Attempting to read its .routeTable.routeTableId will return null/undefined. (More info: https://github.com/aws/aws-cdk/pull/3171)`);
+      Annotations.of(this).addWarningV2('@aws-cdk/aws-ec2:noSubnetRouteTableId', `No routeTableId was provided to the subnet ${ref}. Attempting to read its .routeTable.routeTableId will return null/undefined. (More info: https://github.com/aws/aws-cdk/pull/3171)`);
     }
 
     this._ipv4CidrBlock = attrs.ipv4CidrBlock;

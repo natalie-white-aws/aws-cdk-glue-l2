@@ -1893,7 +1893,7 @@ export class Bucket extends BucketBase {
     } else if (props.serverAccessLogsBucket) {
       // A `serverAccessLogsBucket` was provided but it is not a concrete `Bucket` and it
       // may not be possible to configure the ACLs or bucket policy as required.
-      Annotations.of(this).addWarning(
+      Annotations.of(this).addWarningV2('@aws-cdk/aws-s3:accessLogsPolicyNotAdded',
         `Unable to add necessary logging permissions to imported target bucket: ${props.serverAccessLogsBucket}`,
       );
     }
@@ -2318,7 +2318,7 @@ export class Bucket extends BucketBase {
     }
 
     const routingRules = props.websiteRoutingRules ? props.websiteRoutingRules.map<CfnBucket.RoutingRuleProperty>((rule) => {
-      if (rule.condition && !rule.condition.httpErrorCodeReturnedEquals && !rule.condition.keyPrefixEquals) {
+      if (rule.condition && rule.condition.httpErrorCodeReturnedEquals == null && rule.condition.keyPrefixEquals == null) {
         throw new Error('The condition property cannot be an empty object');
       }
 

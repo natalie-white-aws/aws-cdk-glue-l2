@@ -49,9 +49,6 @@ queue parameters. The following parameters will impact Amazon SQS's polling
 behavior:
 
 * __visibilityTimeout__: May impact the period between retries.
-* __receiveMessageWaitTime__: Will determine [long
-  poll](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-long-polling.html)
-  duration. The default value is 20 seconds.
 * __batchSize__: Determines how many records are buffered before invoking your lambda function.
 * __maxBatchingWindow__: The maximum amount of time to gather records before invoking the lambda. This increases the likelihood of a full batch at the cost of delayed processing.
 * __maxConcurrency__: The maximum concurrency setting limits the number of concurrent instances of the function that an Amazon SQS event source can invoke.
@@ -62,7 +59,6 @@ import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 
 const queue = new sqs.Queue(this, 'MyQueue', {
   visibilityTimeout: Duration.seconds(30),      // default,
-  receiveMessageWaitTime: Duration.seconds(20), // default
 });
 declare const fn: lambda.Function;
 
@@ -274,6 +270,30 @@ myFunction.addEventSource(new SelfManagedKafkaEventSource({
 ```
 
 If your self managed Kafka cluster is only reachable via VPC also configure `vpc` `vpcSubnets` and `securityGroup`.
+
+You can specify [event filtering](https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html#filtering-msk-smak) 
+for managed and self managed Kafka clusters using the `filters` property:
+```ts
+import { ManagedKafkaEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
+
+// Your MSK cluster arn
+const clusterArn = 'arn:aws:kafka:us-east-1:0123456789019:cluster/SalesCluster/abcd1234-abcd-cafe-abab-9876543210ab-4';
+
+// The Kafka topic you want to subscribe to
+const topic = 'some-cool-topic';
+
+declare const myFunction: lambda.Function;
+myFunction.addEventSource(new ManagedKafkaEventSource({
+  clusterArn,
+  topic,
+  startingPosition: lambda.StartingPosition.TRIM_HORIZON,
+  filters: [
+    lambda.FilterCriteria.filter({
+      stringEquals: lambda.FilterRule.isEqual('test'),
+    }),
+  ],
+}));
+```
 
 ## Roadmap
 

@@ -620,7 +620,7 @@ export abstract class BaseService extends Resource
     this.node.addDependency(this.taskDefinition.taskRole);
 
     if (props.deploymentController?.type === DeploymentControllerType.EXTERNAL) {
-      Annotations.of(this).addWarning('taskDefinition and launchType are blanked out when using external deployment controller.');
+      Annotations.of(this).addWarningV2('@aws-cdk/aws-ecs:externalDeploymentController', 'taskDefinition and launchType are blanked out when using external deployment controller.');
     }
 
     if (props.circuitBreaker
@@ -682,7 +682,9 @@ export abstract class BaseService extends Resource
         enable: true,
         rollback: props.deploymentAlarms.behavior !== AlarmBehavior.FAIL_ON_ALARM,
       };
-    } else if (this.deploymentAlarmsAvailableInRegion()) {
+    // CloudWatch alarms is only supported for Amazon ECS services that use the rolling update (ECS) deployment controller.
+    } else if ((!props.deploymentController ||
+      props.deploymentController?.type === DeploymentControllerType.ECS) && this.deploymentAlarmsAvailableInRegion()) {
       this.deploymentAlarms = {
         alarmNames: [],
         enable: false,
@@ -1027,14 +1029,14 @@ export abstract class BaseService extends Resource
     return {
       attachToApplicationTargetGroup(targetGroup: elbv2.ApplicationTargetGroup): elbv2.LoadBalancerTargetProps {
         targetGroup.registerConnectable(self, self.taskDefinition._portRangeFromPortMapping(target.portMapping));
-        return self.attachToELBv2(targetGroup, target.containerName, target.portMapping.containerPort);
+        return self.attachToELBv2(targetGroup, target.containerName, target.portMapping.containerPort!);
       },
       attachToNetworkTargetGroup(targetGroup: elbv2.NetworkTargetGroup): elbv2.LoadBalancerTargetProps {
-        return self.attachToELBv2(targetGroup, target.containerName, target.portMapping.containerPort);
+        return self.attachToELBv2(targetGroup, target.containerName, target.portMapping.containerPort!);
       },
       connections,
       attachToClassicLB(loadBalancer: elb.LoadBalancer): void {
-        return self.attachToELB(loadBalancer, target.containerName, target.portMapping.containerPort);
+        return self.attachToELB(loadBalancer, target.containerName, target.portMapping.containerPort!);
       },
     };
   }
@@ -1365,7 +1367,7 @@ export abstract class BaseService extends Resource
   }
 
   private deploymentAlarmsAvailableInRegion(): boolean {
-    const unsupportedPartitions = ['aws-cn', 'aws-us-gov', 'aws-us-iso', 'aws-us-iso-b'];
+    const unsupportedPartitions = ['aws-cn', 'aws-us-gov', 'aws-iso', 'aws-iso-b'];
     const currentRegion = RegionInfo.get(this.stack.resolve(this.stack.region));
     if (currentRegion.partition) {
       return !unsupportedPartitions.includes(currentRegion.partition);

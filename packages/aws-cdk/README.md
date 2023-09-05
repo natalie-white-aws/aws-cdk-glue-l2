@@ -11,21 +11,21 @@
 
 The AWS CDK Toolkit provides the `cdk` command-line interface that can be used to work with AWS CDK applications.
 
-Command                               | Description
---------------------------------------|---------------------------------------------------------------------------------
-[`cdk docs`](#cdk-docs)               | Access the online documentation
-[`cdk init`](#cdk-init)               | Start a new CDK project (app or library)
-[`cdk list`](#cdk-list)               | List stacks in an application
-[`cdk synth`](#cdk-synthesize)        | Synthesize a CDK app to CloudFormation template(s)
-[`cdk diff`](#cdk-diff)               | Diff stacks against current state
-[`cdk deploy`](#cdk-deploy)           | Deploy a stack into an AWS account
-[`cdk import`](#cdk-import)           | Import existing AWS resources into a CDK stack
-[`cdk watch`](#cdk-watch)             | Watches a CDK app for deployable and hotswappable changes
-[`cdk destroy`](#cdk-destroy)         | Deletes a stack from an AWS account
-[`cdk bootstrap`](#cdk-bootstrap)     | Deploy a toolkit stack to support deploying large stacks & artifacts
-[`cdk doctor`](#cdk-doctor)           | Inspect the environment and produce information useful for troubleshooting
-[`cdk acknowledge`](#cdk-acknowledge) | Acknowledge (and hide) a notice by issue number
-[`cdk notices`](#cdk-notices)         | List all relevant notices for the application
+| Command                               | Description                                                                |
+| ------------------------------------- | -------------------------------------------------------------------------- |
+| [`cdk docs`](#cdk-docs)               | Access the online documentation                                            |
+| [`cdk init`](#cdk-init)               | Start a new CDK project (app or library)                                   |
+| [`cdk list`](#cdk-list)               | List stacks in an application                                              |
+| [`cdk synth`](#cdk-synthesize)        | Synthesize a CDK app to CloudFormation template(s)                         |
+| [`cdk diff`](#cdk-diff)               | Diff stacks against current state                                          |
+| [`cdk deploy`](#cdk-deploy)           | Deploy a stack into an AWS account                                         |
+| [`cdk import`](#cdk-import)           | Import existing AWS resources into a CDK stack                             |
+| [`cdk watch`](#cdk-watch)             | Watches a CDK app for deployable and hotswappable changes                  |
+| [`cdk destroy`](#cdk-destroy)         | Deletes a stack from an AWS account                                        |
+| [`cdk bootstrap`](#cdk-bootstrap)     | Deploy a toolkit stack to support deploying large stacks & artifacts       |
+| [`cdk doctor`](#cdk-doctor)           | Inspect the environment and produce information useful for troubleshooting |
+| [`cdk acknowledge`](#cdk-acknowledge) | Acknowledge (and hide) a notice by issue number                            |
+| [`cdk notices`](#cdk-notices)         | List all relevant notices for the application                              |
 
 - [Bundling](#bundling)
 - [MFA Support](#mfa-support)
@@ -157,6 +157,13 @@ $ # Diff against a specific template document
 $ cdk diff --app='node bin/main.js' MyStackName --template=path/to/template.yml
 ```
 
+The `quiet` flag can also be passed to the `cdk diff` command. Assuming there are no differences detected the output to the console will **not** contain strings such as the *Stack* `MyStackName` and `There were no differences`.
+
+```console
+$ # Diff against the currently deployed stack with quiet parameter enabled
+$ cdk diff --quiet --app='node bin/main.js' MyStackName
+```
+
 ### `cdk deploy`
 
 Deploys a stack of your CDK app to its environment. During the deployment, the toolkit will output progress
@@ -246,7 +253,7 @@ Usage of output in a CDK stack
 const fn = new lambda.Function(this, "fn", {
   handler: "index.handler",
   code: lambda.Code.fromInline(`exports.handler = \${handler.toString()}`),
-  runtime: lambda.Runtime.NODEJS_14_X
+  runtime: lambda.Runtime.NODEJS_LATEST
 });
 
 new cdk.CfnOutput(this, 'FunctionArn', {
