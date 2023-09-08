@@ -72,38 +72,6 @@ const script = glue.Code.fromAsset(path.join(__dirname, 'job-script/hello_world.
   });
 });
 
-new glue.JobLegacy(stack, 'ShellJob', {
-  jobName: 'ShellJob',
-  executable: glue.JobExecutable.pythonShell({
-    glueVersion: glue.GlueVersion.V1_0,
-    pythonVersion: glue.PythonVersion.THREE,
-    script,
-  }),
-  defaultArguments: {
-    arg1: 'value1',
-    arg2: 'value2',
-  },
-  tags: {
-    key: 'value',
-  },
-});
-
-new glue.JobLegacy(stack, 'ShellJob39', {
-  jobName: 'ShellJob39',
-  executable: glue.JobExecutable.pythonShell({
-    glueVersion: glue.GlueVersion.V1_0,
-    pythonVersion: glue.PythonVersion.THREE_NINE,
-    script,
-  }),
-  defaultArguments: {
-    arg1: 'value1',
-    arg2: 'value2',
-  },
-  tags: {
-    key: 'value',
-  },
-});
-
 new glue.JobLegacy(stack, 'RayJob', {
   jobName: 'RayJob',
   executable: glue.JobExecutable.pythonRay({

@@ -1,5 +1,5 @@
 {
-  "version": "32.0.0",
+  "version": "34.0.0",
   "artifacts": {
     "aws-glue-job.assets": {
       "type": "cdk:asset-manifest",
@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/4ff2e5500ce87081dfbf121cb29a8c64ffc6edc276257bb420e68abbb49af40a.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/488db797249ee10acee986f6e88da81e84951f2ed97fefc4dac411946ad4f7f0.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -43,12 +43,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "EtlJob20ServiceRoleDefaultPolicy37D28060"
-          }
-        ],
-        "/aws-glue-job/EtlJob2.0/SparkUIBucket/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "EtlJob20SparkUIBucketFD07FBD8"
           }
         ],
         "/aws-glue-job/EtlJob2.0/Resource": [
@@ -93,12 +87,6 @@
             "data": "EtlJob30ServiceRoleDefaultPolicyE57ADD66"
           }
         ],
-        "/aws-glue-job/EtlJob3.0/SparkUIBucket/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "EtlJob30SparkUIBucket9D789346"
-          }
-        ],
         "/aws-glue-job/EtlJob3.0/Resource": [
           {
             "type": "aws:cdk:logicalId",
@@ -139,12 +127,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "EtlJob40ServiceRoleDefaultPolicy369BD98D"
-          }
-        ],
-        "/aws-glue-job/EtlJob4.0/SparkUIBucket/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "EtlJob40SparkUIBucket02F50B0D"
           }
         ],
         "/aws-glue-job/EtlJob4.0/Resource": [
@@ -259,6 +241,33 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "CheckBootstrapVersion"
+          }
+        ],
+        "EtlJob20SparkUIBucketFD07FBD8": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EtlJob20SparkUIBucketFD07FBD8",
+            "trace": [
+              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
+            ]
+          }
+        ],
+        "EtlJob30SparkUIBucket9D789346": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EtlJob30SparkUIBucket9D789346",
+            "trace": [
+              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
+            ]
+          }
+        ],
+        "EtlJob40SparkUIBucket02F50B0D": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EtlJob40SparkUIBucket02F50B0D",
+            "trace": [
+              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
+            ]
           }
         ]
       },

@@ -140,17 +140,17 @@
               "version": "0.0.0"
             }
           },
-          "ShellJob39": {
-            "id": "ShellJob39",
-            "path": "aws-glue-job-python-shell/ShellJob39",
+          "BasicShellJob39": {
+            "id": "BasicShellJob39",
+            "path": "aws-glue-job-python-shell/BasicShellJob39",
             "children": {
               "Code2907ea7be4a583708cfffc21b3df1dfa": {
                 "id": "Code2907ea7be4a583708cfffc21b3df1dfa",
-                "path": "aws-glue-job-python-shell/ShellJob39/Code2907ea7be4a583708cfffc21b3df1dfa",
+                "path": "aws-glue-job-python-shell/BasicShellJob39/Code2907ea7be4a583708cfffc21b3df1dfa",
                 "children": {
                   "Stage": {
                     "id": "Stage",
-                    "path": "aws-glue-job-python-shell/ShellJob39/Code2907ea7be4a583708cfffc21b3df1dfa/Stage",
+                    "path": "aws-glue-job-python-shell/BasicShellJob39/Code2907ea7be4a583708cfffc21b3df1dfa/Stage",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.AssetStaging",
                       "version": "0.0.0"
@@ -158,7 +158,7 @@
                   },
                   "AssetBucket": {
                     "id": "AssetBucket",
-                    "path": "aws-glue-job-python-shell/ShellJob39/Code2907ea7be4a583708cfffc21b3df1dfa/AssetBucket",
+                    "path": "aws-glue-job-python-shell/BasicShellJob39/Code2907ea7be4a583708cfffc21b3df1dfa/AssetBucket",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_s3.BucketBase",
                       "version": "0.0.0"
@@ -172,7 +172,7 @@
               },
               "Resource": {
                 "id": "Resource",
-                "path": "aws-glue-job-python-shell/ShellJob39/Resource",
+                "path": "aws-glue-job-python-shell/BasicShellJob39/Resource",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::Glue::Job",
                   "aws:cdk:cloudformation:props": {
@@ -196,13 +196,120 @@
                       "library-set": "analytics"
                     },
                     "glueVersion": "3.0",
-                    "maxCapacity": 1,
+                    "maxCapacity": 0.0625,
                     "maxRetries": 0,
                     "role": {
                       "Fn::GetAtt": [
                         "IAMServiceRole61C662C4",
                         "Arn"
                       ]
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_glue.CfnJob",
+                  "version": "0.0.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "@aws-cdk/aws-glue-alpha.PythonShellJob",
+              "version": "0.0.0"
+            }
+          },
+          "BasicShellJob": {
+            "id": "BasicShellJob",
+            "path": "aws-glue-job-python-shell/BasicShellJob",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "aws-glue-job-python-shell/BasicShellJob/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Glue::Job",
+                  "aws:cdk:cloudformation:props": {
+                    "command": {
+                      "name": "pythonshell",
+                      "scriptLocation": {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "s3://",
+                            {
+                              "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                            },
+                            "/432033e3218068a915d2532fa9be7858a12b228a2ae6e5c10faccd9097b1e855.py"
+                          ]
+                        ]
+                      },
+                      "pythonVersion": "3"
+                    },
+                    "defaultArguments": {},
+                    "glueVersion": "1.0",
+                    "maxCapacity": 0.0625,
+                    "maxRetries": 0,
+                    "role": {
+                      "Fn::GetAtt": [
+                        "IAMServiceRole61C662C4",
+                        "Arn"
+                      ]
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_glue.CfnJob",
+                  "version": "0.0.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "@aws-cdk/aws-glue-alpha.PythonShellJob",
+              "version": "0.0.0"
+            }
+          },
+          "DetailedShellJob39": {
+            "id": "DetailedShellJob39",
+            "path": "aws-glue-job-python-shell/DetailedShellJob39",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "aws-glue-job-python-shell/DetailedShellJob39/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Glue::Job",
+                  "aws:cdk:cloudformation:props": {
+                    "command": {
+                      "name": "pythonshell",
+                      "scriptLocation": {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "s3://",
+                            {
+                              "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                            },
+                            "/432033e3218068a915d2532fa9be7858a12b228a2ae6e5c10faccd9097b1e855.py"
+                          ]
+                        ]
+                      },
+                      "pythonVersion": "3.9"
+                    },
+                    "defaultArguments": {
+                      "library-set": "analytics",
+                      "arg1": "value1",
+                      "arg2": "value2"
+                    },
+                    "description": "My detailed Python 3.9 Shell Job",
+                    "glueVersion": "3.0",
+                    "maxCapacity": 1,
+                    "maxRetries": 0,
+                    "name": "My Python 3.9 Shell Job",
+                    "role": {
+                      "Fn::GetAtt": [
+                        "IAMServiceRole61C662C4",
+                        "Arn"
+                      ]
+                    },
+                    "tags": {
+                      "key": "value"
                     }
                   }
                 },

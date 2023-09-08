@@ -17,7 +17,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/dd4c1eaaa289caa3281587a5d846b10003ca46d834a57aa1b94e3bf0b4e4ec32.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/aeda11f7bb7dfbd52c66176f2e7ae14f20571f1f22ab7988a59bc714daf278a0.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -45,13 +45,22 @@
             "data": "IAMServiceRoleDefaultPolicy379D1A0E"
           }
         ],
-        "/aws-glue-job-python-shell/ShellJob39/Resource": [
+        "/aws-glue-job-python-shell/BasicShellJob39/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "ShellJob390C141361",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_REPLACE"
-            ]
+            "data": "BasicShellJob39F2E7D12A"
+          }
+        ],
+        "/aws-glue-job-python-shell/BasicShellJob/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BasicShellJobC7D0761E"
+          }
+        ],
+        "/aws-glue-job-python-shell/DetailedShellJob39/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DetailedShellJob39CB370B41"
           }
         ],
         "/aws-glue-job-python-shell/BootstrapVersion": [
@@ -66,46 +75,10 @@
             "data": "CheckBootstrapVersion"
           }
         ],
-        "ShellJobServiceRoleCF97BC4B": [
+        "ShellJob390C141361": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "ShellJobServiceRoleCF97BC4B",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
-            ]
-          }
-        ],
-        "ShellJobServiceRoleDefaultPolicy7F22D315": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "ShellJobServiceRoleDefaultPolicy7F22D315",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
-            ]
-          }
-        ],
-        "ShellJob42E81F95": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "ShellJob42E81F95",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
-            ]
-          }
-        ],
-        "ShellJob39ServiceRole2F6F3768": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "ShellJob39ServiceRole2F6F3768",
-            "trace": [
-              "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
-            ]
-          }
-        ],
-        "ShellJob39ServiceRoleDefaultPolicy38A33919": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "ShellJob39ServiceRoleDefaultPolicy38A33919",
+            "data": "ShellJob390C141361",
             "trace": [
               "!!DESTRUCTIVE_CHANGES: WILL_DESTROY"
             ]

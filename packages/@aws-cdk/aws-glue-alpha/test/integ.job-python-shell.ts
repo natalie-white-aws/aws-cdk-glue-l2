@@ -29,9 +29,31 @@ const iam_role = new cdk.aws_iam.Role(stack, 'IAMServiceRole', {
   managedPolicies: [cdk.aws_iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSGlueServiceRole')],
 });
 
-new glue.PythonShellJob(stack, 'ShellJob39', {
+new glue.PythonShellJob(stack, 'BasicShellJob39', {
   script: script,
   role: iam_role,
+});
+
+new glue.PythonShellJob(stack, 'BasicShellJob', {
+  script: script,
+  role: iam_role,
+  pythonVersion: glue.PythonVersion.THREE,
+  glueVersion: glue.GlueVersion.V1_0,
+});
+
+new glue.PythonShellJob(stack, 'DetailedShellJob39', {
+  script: script,
+  role: iam_role,
+  description: 'My detailed Python 3.9 Shell Job',
+  maxCapacity: glue.MaxCapacity.DPU_1,
+  jobName: 'My Python 3.9 Shell Job',
+  defaultArguments: {
+    arg1: 'value1',
+    arg2: 'value2',
+  },
+  tags: {
+    key: 'value',
+  },
 });
 
 new integ.IntegTest(app, 'aws-glue-job-python-shell-integ-test', {
