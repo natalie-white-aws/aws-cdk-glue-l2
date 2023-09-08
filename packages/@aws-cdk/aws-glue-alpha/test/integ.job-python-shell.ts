@@ -2,6 +2,7 @@ import * as integ from '@aws-cdk/integ-tests-alpha';
 import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import * as glue from '../lib';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 /**
  * To verify the ability to run jobs created in this test
@@ -24,9 +25,9 @@ const stack = new cdk.Stack(app, 'aws-glue-job-python-shell');
 
 const script = glue.Code.fromAsset(path.join(__dirname, 'job-script/hello_world.py'));
 
-const iam_role = new cdk.aws_iam.Role(stack, 'IAMServiceRole', {
-  assumedBy: new cdk.aws_iam.ServicePrincipal('glue.amazonaws.com'),
-  managedPolicies: [cdk.aws_iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSGlueServiceRole')],
+const iam_role = new iam.Role(stack, 'IAMServiceRole', {
+  assumedBy: new iam.ServicePrincipal('glue.amazonaws.com'),
+  managedPolicies: [iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSGlueServiceRole')],
 });
 
 new glue.PythonShellJob(stack, 'BasicShellJob39', {
