@@ -24,38 +24,14 @@ const stack = new cdk.Stack(app, 'aws-glue-job-python-shell');
 
 const script = glue.Code.fromAsset(path.join(__dirname, 'job-script/hello_world.py'));
 
-new glue.JobLegacy(stack, 'ShellJob', {
-  jobName: 'ShellJob',
-  executable: glue.JobExecutable.pythonShell({
-    glueVersion: glue.GlueVersion.V1_0,
-    pythonVersion: glue.PythonVersion.THREE,
-    script,
-  }),
-  defaultArguments: {
-    arg1: 'value1',
-    arg2: 'value2',
-  },
-  tags: {
-    key: 'value',
-  },
-  maxCapacity: 0.0625,
+const iam_role = new cdk.aws_iam.Role(stack, 'IAMServiceRole', {
+  assumedBy: new cdk.aws_iam.ServicePrincipal('glue.amazonaws.com'),
+  managedPolicies: [cdk.aws_iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSGlueServiceRole')],
 });
 
-new glue.JobLegacy(stack, 'ShellJob39', {
-  jobName: 'ShellJob39',
-  executable: glue.JobExecutable.pythonShell({
-    glueVersion: glue.GlueVersion.V3_0,
-    pythonVersion: glue.PythonVersion.THREE_NINE,
-    script,
-  }),
-  defaultArguments: {
-    arg1: 'value1',
-    arg2: 'value2',
-  },
-  tags: {
-    key: 'value',
-  },
-  maxCapacity: 1.0,
+new glue.PythonShellJob(stack, 'ShellJob39', {
+  script: script,
+  role: iam_role,
 });
 
 new integ.IntegTest(app, 'aws-glue-job-python-shell-integ-test', {

@@ -2,7 +2,7 @@ import { CfnJob } from 'aws-cdk-lib/aws-glue';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Job, JobProperties } from './job';
 import { Construct } from 'constructs';
-import { JobType, GlueVersion, PythonVersion, WorkerType } from '../constants';
+import { JobType, GlueVersion, PythonVersion } from '../constants';
 
 /**
  * Python Shell Jobs class
@@ -71,10 +71,11 @@ export class PythonShellJob extends Job {
         scriptLocation: this.codeS3ObjectUrl(props.script),
         pythonVersion: props.pythonVersion ? props.pythonVersion : PythonVersion.THREE_NINE,
       },
-      glueVersion: props.glueVersion ? props.glueVersion : GlueVersion.V4_0,
-      workerType: props.workerType ? props.workerType : WorkerType.G_2X,
-      numberOfWorkers: props.numberOrWorkers,
-      maxRetries: props.maxRetries,
+      glueVersion: props.glueVersion ? props.glueVersion : GlueVersion.V3_0,
+      //workerType: props.workerType ? props.workerType : WorkerType.G_2X,
+      //numberOfWorkers: props.numberOrWorkers ? props.numberOrWorkers : 10,
+      maxCapacity: 1,
+      maxRetries: props.maxRetries ? props.maxRetries : 0,
       executionProperty: props.maxConcurrentRuns ? { maxConcurrentRuns: props.maxConcurrentRuns } : undefined,
       timeout: props.timeout?.toMinutes(),
       connections: props.connections ? { connections: props.connections.map((connection) => connection.connectionName) } : undefined,
