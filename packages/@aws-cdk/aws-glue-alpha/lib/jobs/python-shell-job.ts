@@ -2,7 +2,7 @@ import { CfnJob } from 'aws-cdk-lib/aws-glue';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Job, JobProperties } from './job';
 import { Construct } from 'constructs';
-import { JobType, GlueVersion, PythonVersion } from '../constants';
+import { JobType, GlueVersion, PythonVersion, MaxCapacity } from '../constants';
 
 /**
  * Python Shell Jobs class
@@ -23,6 +23,12 @@ export interface PythonShellJobProperties extends JobProperties {
   * @default 3.9 for Shell Jobs
   **/
   readonly pythonVersion?: PythonVersion;
+
+  /**
+   * The total number of DPU to assign to the Python Job
+   * @default 0.0625
+   */
+  readonly maxCapacity?: MaxCapacity
 }
 
 /**
@@ -72,9 +78,7 @@ export class PythonShellJob extends Job {
         pythonVersion: props.pythonVersion ? props.pythonVersion : PythonVersion.THREE_NINE,
       },
       glueVersion: props.glueVersion ? props.glueVersion : GlueVersion.V3_0,
-      //workerType: props.workerType ? props.workerType : WorkerType.G_2X,
-      //numberOfWorkers: props.numberOrWorkers ? props.numberOrWorkers : 10,
-      maxCapacity: 1,
+      maxCapacity: props.maxCapacity ? props.maxCapacity : MaxCapacity.DPU_1_16TH,
       maxRetries: props.maxRetries ? props.maxRetries : 0,
       executionProperty: props.maxConcurrentRuns ? { maxConcurrentRuns: props.maxConcurrentRuns } : undefined,
       timeout: props.timeout?.toMinutes(),
