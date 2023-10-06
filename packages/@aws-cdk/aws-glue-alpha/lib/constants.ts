@@ -212,3 +212,4 @@ export enum JobType {
   RAY = 'glueray',
 
 }
+
